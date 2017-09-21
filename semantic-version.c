@@ -17,27 +17,76 @@
  */
 
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "semantic-version.h"
+
+static const char identifier[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+                                 "abcdefghijklmnopqrstuvwxyz" \
+                                 "0123456789-";
+
+#define MIN(x,y) ((x) < (y) ? (x) : (y))
+
+static int
+read_identifiers(const char *string, char **end, char *dest)
+{
+  const char *s = string;
+  while (s == string || *s == '.') {
+    if (*s == '.') {
+      s++;
+    }
+    size_t count = strspn(s, identifier);
+    if (count < 1) {
+      return SEMVER_INVALID;
+    }
+    s += count;
+  }
+  *end = (char *) s;
+  size_t count = MIN(*end - string, SEMVER_BUFFER_SZ - 1);
+  memcpy(dest, string, count);
+  dest[count] = '\0';
+  return 0;
+}
 
 int
 semver_parse(struct semver *s, const char *string)
 {
-  return 0;
+  char *next;
+  s->major = strtoul(string, &next, 10);
+  if (*next != '.') {
+    return SEMVER_INVALID;
+  }
+  s->minor = strtoul(next + 1, &next, 10);
+  if (*next != '.') {
+    return SEMVER_INVALID;
+  }
+  s->patch = strtoul(next + 1, &next, 10);
+  /* pre-release version */
+  if (*next == '-') {
+    if (read_identifiers(next + 1, &next, s->prerelease)) {
+      return SEMVER_INVALID;
+    }
+  } else {
+    s->prerelease[0] = '\0';
+  }
+  /* build metadata */
+  if (*next == '+') {
+    if (read_identifiers(next + 1, &next, s->metadata)) {
+      return SEMVER_INVALID;
+    }
+  } else {
+    s->metadata[0] = '\0';
+  }
+  if (*next != '\0') {
+    return SEMVER_INVALID;
+  } else {
+    return 0;
+  }
 }
 
 int
 semver_cmp(const struct semver *s1, const struct semver *s2)
 {
-  return 0;
-}
-
-static uint32_t
-numeric_element(const char *string)
-{
-  const char *c = string;
-  while (isdigit(*c)) {
-    c++;
-  }
   return 0;
 }
