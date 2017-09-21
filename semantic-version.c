@@ -88,5 +88,23 @@ semver_parse(struct semver *s, const char *string)
 int
 semver_cmp(const struct semver *s1, const struct semver *s2)
 {
-  return 0;
+  if (s1->major < s2->major) {
+    return -1;
+  } else if (s1->major > s2->major) {
+    return 1;
+  }
+  /* major numbers are equal */
+  if (s1->minor < s2->minor) {
+    return -1;
+  } else if (s1->minor > s2->minor) {
+    return 1;
+  }
+  /* minor numbers are equal */
+  if (s1->patch < s2->patch) {
+    return -1;
+  } else if (s1->patch > s2->patch) {
+    return 1;
+  }
+  /* patch numbers are equal */
+  return strcmp(s1->prerelease, s2->prerelease);
 }

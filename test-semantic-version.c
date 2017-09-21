@@ -37,10 +37,27 @@ test_correct()
   return 0;
 }
 
+const char *
+test_comparison()
+{
+  struct semver ver1, ver2;
+  int res1 = semver_parse(&ver1, "1.0.0");
+  int res2 = semver_parse(&ver2, "1.0.2");
+  if (res1 != 0 || res2 != 0 ||
+      semver_cmp(&ver1, &ver2) != -1) {
+    return "incorrect comparison: 1.0.0 1.0.2";
+  }
+  return 0;
+}
+
 int
 main(int argc, char *argv[])
 {
-  const char * msg = test_correct();
+  const char *msg = test_correct();
+  if (msg) {
+    printf("%s\n", msg);
+  }
+  msg = test_comparison();
   if (msg) {
     printf("%s\n", msg);
   }
