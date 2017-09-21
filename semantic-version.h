@@ -23,6 +23,8 @@
 
 #define SEMVER_BUFFER_SZ 256
 
+#define SEMVER_INVALID -1
+
 struct semver {
   uint32_t major;
   uint32_t minor;
